@@ -108,7 +108,7 @@ def install_pip():
         run('python3.3 get-pip.py')
 
         run('mkdir -p ~/.pip')
-        run("echo '[global]' ~/.pip/pip.conf")
+        run("echo '[global]' > ~/.pip/pip.conf")
         run("echo 'index-url = http://pypi.v2ex.com/simple/' >>"
             " ~/.pip/pip.conf")
 
