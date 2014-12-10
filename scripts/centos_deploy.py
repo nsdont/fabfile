@@ -70,7 +70,7 @@ def install_base():
     puts('Install base software..')
     run('yum -y --enablerepo=remi groupinstall "Development tools"')
     run('yum -y --enablerepo=remi install zlib-devel bzip2-devel openssl-devel'
-        'ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel '
+        ' ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel '
         'db4-devel libpc ap-devel xz-devel git libxslt-devel')
 
 
