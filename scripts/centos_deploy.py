@@ -1,5 +1,15 @@
+import os.path as op
+
 from fabric.api import run, prompt, put, sudo, cd, puts
 from getpass import getpass
+
+
+BASE_DIR = op.dirname(__file__)
+
+
+def test():
+    redis_file = op.join(BASE_DIR, 'deploy_soft/redis-2.8.17.tar.gz')
+    put(redis_file, '/tmp/redis.tar.gz')
 
 
 def ssh_setup():
@@ -37,11 +47,14 @@ def enable_develop_repo():
 
 
 def install_redis():
-    puts('Install Redis 2.8.17')
+    version = '2.8.17'
+    puts('Install Redis {}'.format(version))
     with cd('/tmp'):
-        run("wget http://download.redis.io/releases/redis-2.8.17.tar.gz")
-        run("tar xz -f redis-2.8.17.tar.gz")
-        with cd('redis-2.8.17'):
+        file_path = op.join(BASE_DIR,
+                            'deploy_soft/redis-{}.tar.gz'.format(version))
+        put(file_path, '/tmp/redis-{}.tar.gz'.format(version))
+        run('tar xz -f redis-{}.tar.gz'.format(version))
+        with cd('redis-{}'.format(version)):
             run('make')
             run('make test')
             run('make install')
@@ -71,26 +84,33 @@ def install_base():
     run('yum -y --enablerepo=remi groupinstall "Development tools"')
     run('yum -y --enablerepo=remi install zlib-devel bzip2-devel openssl-devel'
         ' ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel '
-        'db4-devel libpc ap-devel xz-devel git libxslt-devel')
+        'db4-devel libpc ap-devel xz-devel git libxslt-devel '
+        'libjpeg-turbo-devel openjpeg-devel turbojpeg-devel')
 
 
 def install_python2():
-    puts('Install Python2.7.6')
+    version = '2.7.6'
+    puts('Install Python {}'.format(version))
     with cd('/tmp'):
-        run('wget http://python.org/ftp/python/2.7.6/Python-2.7.6.tar.xz')
-        run('tar xf Python-2.7.6.tar.xz')
-        with cd('Python-2.7.6'):
+        file_path = op.join(BASE_DIR,
+                            'deploy_soft/Python-{}.tar.xz'.format(version))
+        put(file_path, '/tmp/Python-{}.tar.xz'.format(version))
+        run('tar xf Python-{}.tar.xz'.format(version))
+        with cd('Python-{}'.format(version)):
             run('./configure --prefix=/usr/local --enable-unicode=ucs4 --enab'
                 'le-shared LDFLAGS="-Wl,-rpath /usr/local/lib"')
             run('make && make altinstall')
 
 
 def install_python3():
-    puts('Install Python3.3.5')
+    version = '3.3.5'
+    puts('Install Python {}'.format(version))
     with cd('/tmp'):
-        run('wget http://python.org/ftp/python/3.3.5/Python-3.3.5.tar.xz')
-        run('tar xf Python-3.3.5.tar.xz')
-        with cd('Python-3.3.5'):
+        file_path = op.join(BASE_DIR,
+                            'deploy_soft/Python-{}.tar.xz'.format(version))
+        put(file_path, '/tmp/Python-{}.tar.xz'.format(version))
+        run('tar xf Python-{}.tar.xz'.format(version))
+        with cd('Python-{}'.format(version)):
             run('./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl'
                 ',-rpath /usr/local/lib"')
             run('make && make altinstall')
@@ -145,11 +165,14 @@ def install_postgresql():
 
 
 def install_nodejs():
-    puts('Install NodeJS')
+    version = '0.10.33'
+    puts('Install NodeJS {}'.format(version))
     with cd('/tmp'):
-        run('wget http://nodejs.org/dist/v0.10.33/node-v0.10.33.tar.gz')
-        run("tar xz -f node-v0.10.33.tar.gz")
-        with cd('node-v0.10.33'):
+        file_path = op.join(BASE_DIR,
+                            'deploy_soft/node-v{}.tar.gz'.format(version))
+        put(file_path, '/tmp/node-v{}.tar.gz'.format(version))
+        run('tar xz -f node-v{}.tar.gz'.format(version))
+        with cd('node-v{}'.format(version)):
             run('make')
             run('make install')
         run('npm install -g bower')
@@ -157,7 +180,7 @@ def install_nodejs():
 
 def deploy():
     run('mkdir -p ~/.pip')
-    run("echo '[global]' ~/.pip/pip.conf")
+    run("echo '[global]' > ~/.pip/pip.conf")
     run("echo 'index-url = http://pypi.v2ex.com/simple/' >>"
         " ~/.pip/pip.conf")
     run('pip install supervisor')
